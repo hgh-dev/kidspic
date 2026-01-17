@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KidsPic v3.7.1 (Center Tools)</title>
+    <style>
+        /* --- 1. 기본 설정 --- */
+        :root {
+            --bg-color: #f4f7f6;
+            --sidebar-bg: #ffffff;
+            --sidebar-width: 300px;
+            --accent-color: #FF6B6B;
+            --btn-border: #ddd;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            overflow: hidden;
+            font-family: 'Pretendard', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh; 
+            height: 100dvh; 
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* --- 2. 상단 바 (Top Bar) --- */
+        #top-bar {
+            height: 50px;
+            background-color: var(--sidebar-bg);
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5px;
+            flex-shrink: 0;
+            z-index: 20;
+            gap: 10px;
+        }
+
+        .top-group { 
+            display: flex; 
+            gap: 5px; 
+            flex-shrink: 0; 
+            align-items: center;
+        }
+
+        /* 중앙 도구 영역 */
+        #top-tools {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* [v3.7.1] 도구들을 가운데로 정렬! */
+            gap: 5px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 2px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        #top-tools::-webkit-scrollbar { display: none; }
+
+        .icon-btn {
+            width: 40px;      
+            height: 40px;     
+            padding: 8px;     
+            flex-shrink: 0;   
+            box-sizing: border-box; 
+        }
+        
+        .icon-btn svg { 
+            width: 100%; 
+            height: 100%; 
+            fill: #555; 
+            display: block; 
+        }
+
+        /* 텍스트 입력 UI */
+        #text-ui { 
+            display: none; 
+            align-items: center; 
+            gap: 4px; 
+            background: #eee; 
+            padding: 3px; 
+            border-radius: 4px;
+            flex-shrink: 0;
+            height: 40px; 
+            box-sizing: border-box;
+        }
+        #text-val { width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; }
+        #text-btn { padding: 0 10px; height: 30px; font-size: 12px; background: #333; color: white; border: none; border-radius: 4px; }
+
+
+        /* --- 3. 메인 영역 --- */
+        #main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            overflow: hidden;
+            position: relative;
+            min-height: 0;
+        }
+        #main-area.left-handed { flex-direction: row-reverse; }
+        #main-area.left-handed #sidebar { border-right: none; border-left: 1px solid #ccc; }
+
+        /* --- 4. 사이드바 --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            z-index: 15;
+            height: 100%; 
+            box-sizing: border-box; 
+        }
+
+        .tool-section {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 8px;
+            flex-shrink: 0; 
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .section-title { font-size: 12px; color: #888; font-weight: bold; margin-bottom: 2px; display: block; }
+        
+        /* 그리드 */
+        .grid-row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .grid-colors { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+
+        /* 버튼 기본 */
+        button {
+            background: white; border: 1px solid var(--btn-border);
+            border-radius: 6px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            touch-action: manipulation;
+            transition: all 0.1s ease;
+        }
+        button:active { transform: scale(0.95); background: #f0f0f0; }
+        
+        .selected { border-color: var(--accent-color); background-color: #fff0f0; border-width: 2px; }
+        .selected svg { fill: var(--accent-color); }
+
+        .stamp-btn.selected {
+            border: 3px solid var(--accent-color);
+            background-color: #ffe6e6;
+            box-shadow: 0 0 0 2px rgba(255, 107, 107, 0.2);
+            transform: scale(1.05);
+            z-index: 1;
+        }
+
+        /* 색상 버튼 */
+        .color-btn { 
+            width: 100%; aspect-ratio: 1; border-radius: 4px; 
+            border: 1px solid rgba(0,0,0,0.1); cursor: pointer; box-sizing: border-box; 
+        }
+        .color-btn.selected { border: 2px solid #333; box-shadow: inset 0 0 0 1px #fff; z-index: 2; }
+        .rainbow { background: linear-gradient(135deg, red, orange, yellow, green, blue, purple); }
+
+        /* 펜 크기 */
+        .size-btn { height: 32px; }
+        .size-dot { background-color: #555; border-radius: 50%; }
+        .size-btn.selected .size-dot { background-color: var(--accent-color); }
+
+        /* 스탬프 섹션 */
+        #stamp-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            gap: 0;
+            padding: 0;
+            background: transparent;
+            border: none;
+            overflow: hidden;
+        }
+
+        #stamp-cat-box {
+            background: #f0f2f5;
+            padding: 8px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            flex-shrink: 0; 
+        }
+
+        .cat-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 4px; 
+        }
+        
+        .stamp-cat { 
+            height: 34px; 
+            padding: 0; 
+            font-size: 11px; 
+            white-space: nowrap; 
+            border: 1px solid #ccc; background: #fff; border-radius: 6px;
+            letter-spacing: -0.5px; 
+        }
+        .stamp-cat.selected { border: 2px solid var(--accent-color); background: #fff; color: var(--accent-color); font-weight: bold; }
+
+        #stamp-list-box {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ddd;
+            overflow-y: auto; 
+            padding: 5px;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .grid-stamps { 
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; 
+        }
+        .stamp-btn { font-size: 24px; height: 45px; border: 1px solid #eee; background: #fff; border-radius: 5px;}
+
+        /* 컨트롤 박스 UI */
+        #stamp-controls-box {
+            background: #f9f9f9;
+            padding: 8px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #ddd;
+            border-top: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px; 
+            flex-shrink: 0; 
+        }
+
+        .slider-row { display: flex; align-items: center; gap: 8px; height: 40px; }
+        
+        /* 스크롤바(Range) 커스텀 스타일링 */
+        input[type=range] {
+            flex: 1;
+            -webkit-appearance: none; 
+            background: transparent;
+        }
+        
+        /* 트랙(줄) 스타일 */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px; 
+            background: #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* 손잡이(동그라미) 스타일 */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 30px; 
+            width: 30px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            margin-top: -10px; 
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+        }
+
+        .val-display { font-size: 14px; font-weight: bold; width: 30px; text-align: right; color: #555; }
+
+        .flip-group { display: flex; gap: 5px; }
+        .flip-btn { flex: 1; height: 40px; font-size: 14px; gap: 5px; border-width: 2px;}
+        .flip-btn.active { background: #333; color: white; border-color: #333; }
+
+        /* --- 캔버스 --- */
+        #canvas-wrapper {
+            flex: 1;
+            position: relative;
+            background-color: #fff; 
+            margin: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            min-width: 100px; 
+        }
+        canvas { position: absolute; top: 0; left: 0; touch-action: none; }
+        #previewCanvas { z-index: 10; cursor: crosshair; }
+
+        /* 폭발 효과 */
+        #bomb-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; align-items: center; justify-content: center;
+            font-size: 120px; z-index: 100; pointer-events: none;
+            background: rgba(255,255,255,0.6);
+        }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-5px, 5px); } 75% { transform: translate(5px, -5px); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="top-bar">
+        <div class="top-group">
+            <button class="icon-btn" id="btn-save" title="저장"><svg viewBox="0 0 24 24"><path d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z"/></svg></button>
+            <button class="icon-btn" id="btn-undo" title="되돌리기"><svg viewBox="0 0 24 24"><path d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z"/></svg></button>
+            <button class="icon-btn" id="btn-clear" style="border-color:#ffaaaa; font-size: 20px;" title="펑! (초기화)">💣</button>
+        </div>
+
+        <div id="top-tools">
+            <button class="icon-btn selected" data-mode="pencil" title="연필"><svg viewBox="0 0 24 24"><path d="M3,17.25V21H6.75L17.81,9.94L14.06,6.19L3,17.25M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04Z"/></svg></button>
+            <button class="icon-btn" data-mode="brush" title="진짜 수채화 붓"><svg viewBox="0 0 24 24"><path d="M20.71,4.63L19.37,3.29C19,2.9 18.35,2.9 17.96,3.29L9,12.25L11.75,15L20.71,6.04C21.1,5.65 21.1,5 20.71,4.63M7,14A3,3 0 0,0 4,17C4,18.31 2.84,19 2,19C2.92,20.22 4.5,21 6,21A4,4 0 0,0 10,17A3,3 0 0,0 7,14Z"/></svg></button>
+            <button class="icon-btn" data-mode="brush-spray" title="스프레이">💨</button>
+            
+            <button class="icon-btn" data-mode="line" title="선"><svg viewBox="0 0 24 24"><path d="M3,21L21,3" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
+            <button class="icon-btn" data-mode="rect" title="네모"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></button>
+            <button class="icon-btn" data-mode="circle" title="원"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></button>
+            <button class="icon-btn" data-mode="triangle" title="세모"><svg viewBox="0 0 24 24"><path d="M12,2L2,22H22L12,2Z"/></svg></button>
+            <button class="icon-btn" data-mode="eraser" title="지우개"><svg viewBox="0 0 24 24"><path d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L14.12,15.58L9.17,10.63L4.22,15.58Z"/></svg></button>
+            <button class="icon-btn" data-mode="paint" title="채우기">🪣</button>
+            
+            <button class="icon-btn" data-mode="text" title="글자"><svg viewBox="0 0 24 24"><path d="M18.5,4L19.66,8.35L18.7,8.61C18.25,7.74 17.79,6.87 17.26,6.43C16.73,6 16.11,6 15.5,6H13V16.5C13,17 13,17.5 13.33,17.75C13.67,18 14.33,18 15,18V19H9V18C9.67,18 10.33,18 10.67,17.75C11,17.5 11,17 11,16.5V6H8.5C7.89,6 7.27,6 6.74,6.43C6.21,6.87 5.75,7.74 5.3,8.61L4.34,8.35L5.5,4H18.5Z"/></svg></button>
+            
+            <div id="text-ui">
+                <input type="text" id="text-val" value="안녕">
+                <button id="text-btn">OK</button>
+            </div>
+        </div>
+
+        <div class="top-group">
+            <button class="icon-btn" id="btn-hand" title="화면 좌우 변경"><svg viewBox="0 0 24 24"><path d="M6.99,11L3,15l3.99,4v-3H14v-2H6.99V11z M21,9l-3.99-4v3H10v2h7.01v3L21,9z"/></svg></button>
+        </div>
+    </div>
+
+    <div id="main-area">
+        
+        <div id="sidebar">
+            
+            <div class="tool-section">
+                <span class="section-title">펜 굵기</span>
+                <div class="grid-row-4">
+                    <button class="size-btn selected" data-size="5"><div class="size-dot" style="width:4px; height:4px;"></div></button>
+                    <button class="size-btn" data-size="15"><div class="size-dot" style="width:10px; height:10px;"></div></button>
+                    <button class="size-btn" data-size="30"><div class="size-dot" style="width:18px; height:18px;"></div></button>
+                    <button class="size-btn" data-size="50"><div class="size-dot" style="width:26px; height:26px;"></div></button>
+                </div>
+            </div>
+
+            <div class="tool-section">
+                <span class="section-title">색깔</span>
+                <div class="grid-colors" id="color-palette"></div>
+            </div>
+
+            <div id="stamp-section">
+                
+                <div id="stamp-cat-box">
+                    <span class="section-title">스탬프 주제</span>
+                    <div class="cat-grid" id="cat-scroll-area"></div>
+                </div>
+
+                <div id="stamp-list-box">
+                    <div class="grid-stamps" id="stamp-list"></div>
+                </div>
+
+                <div id="stamp-controls-box">
+                    <div class="slider-row">
+                        <span style="font-size:12px; font-weight:bold;">크기</span>
+                        <input type="range" id="stamp-slider" min="20" max="500" value="50">
+                        <span class="val-display" id="stamp-size-val">50</span>
+                    </div>
+                    <div class="flip-group">
+                        <button class="flip-btn" id="btn-flip-x" onclick="App.toggleFlip('x')">↔️ 좌우 반전</button>
+                        <button class="flip-btn" id="btn-flip-y" onclick="App.toggleFlip('y')">↕️ 상하 반전</button>
+                    </div>
+                </div>
+
+            </div>
+            
+        </div>
+
+        <div id="canvas-wrapper">
+            <canvas id="drawingCanvas"></canvas>
+            <canvas id="previewCanvas"></canvas>
+            <div id="bomb-overlay">💣</div>
+        </div>
+
+    </div>
+
+    <script>
+        const FINAL_COLORS = [
+            '#FF0000', '#FF7F00', '#FFFF00', '#ADFF2F', '#00FF00', '#00FFFF', '#0000FF', '#4B0082', '#8B4513', 
+            '#FF6666', '#FFA500', '#FFFF99', '#98FB98', '#32CD32', '#87CEEB', '#1E90FF', '#8A2BE2', '#A0522D', 
+            '#FFC0CB', '#FFDAB9', '#FFFACD', '#F0FFF0', '#F5FFFA', '#E0FFFF', '#F0F8FF', '#E6E6FA', '#D2B48C', 
+            '#8B0000', '#D2691E', '#B8860B', '#556B2F', '#006400', '#008080', '#000080', '#483D8B', '#696969', 
+            '#000000', '#2F4F4F', '#708090', '#A9A9A9', '#C0C0C0', '#DCDCDC', '#F5F5F5', '#FFFFFF', 'rainbow'
+        ];
+
+        const STAMPS = {
+            '사람 🧍': ['🧍‍♂️', '🧍‍♀️', '🧍', '🚶‍♂️', '🚶‍♀️', '🚶', '🏌‍♂️', '🤸‍♂️', '🤾', '🧘‍♂️', '🧘', '🧎‍♀️', '👬', '👫', '👭', '🧑‍🤝‍🧑', '🤺', '🚴‍♀️', '🏇', '🏂', '⛷️', '🕺', '💃', '👯‍♂️', '🤼‍♂️', '🤾', '⛹️‍♂️', '⛹️‍♀️', '🏋‍♂️', '🛀', '🛌', '🧜‍♂️', '🧜‍♀️', '🧜', '🧞‍♂️', '🧞‍♀️', '🧞', '🧚‍♂️', '🧚‍♀️', '🧚', '🧟‍♂️'],
+            '감정 😀': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🥰', '😍', '😘', '😗', '😚', '🥲', '😋', '😝', '😜', '🤪', '😑', '😏', '🙄', '😬', '😮‍💨', '🤥', '😪', '🤤', '🤮', '🤧', '🥺', '🥹', '😭', '😠', '💀', '💩', '👹', '💋', '💌', '❤️', '💕', '🩷', '🧡', '💚', '💙', '💛', '🤎', '🖤'],
+            '동물 🐒': ['🐒', '🦍', '🦧', '🐕', '🐈', '🐈‍⬛', '🐅', '🐆', '🫏', '🐎', '🦓', '🦌', '🦬', '🐂', '🐃', '🐄', '🐖', '🐏', '🐑', '🐐', '🐪', '🦙', '🦒', '🐘', '🐀', '🐇', '🐿', '🦫', '🦔', '🦇', '🦦', '🦘', '🦃', '🐓', '🐤', '🐥', '🐦', '🐧', '🕊', '🦅', '🦆', '🦢', '🦉', '🦩', '🦚', '🦜', '🪿', '🐊', '🐢', '🦎', '🐍', '🐉', '🦕', '🐳', '🐋', '🐬', '🦭', '🐟', '🐠', '🐡', '🦈', '🐙', '🦀', '🦞', '🦐', '🦑', '🐚', '🪸', '🪼'],
+            '곤충 🦋': ['🐌', '🦋', '🐛', '🐜', '🐝', '🪲', '🐞', '🦗', '🕷', '🪳', '🕸', '🦂', '🦟', '🪰', '🪱', '🦠'],
+            '자연 ☀️': ['🌞', '☀️', '🌕', '🌒', '⭐️', '🌟', '🪐', '🌛', '🌚', '☁️', '🌩', '🌪', '🌈', '⛄️', '⚡️', '🌊', '🔥', '💧', '❄️', '💐', '🌸', '💮', '🪷', '🏵', '🌹', '🥀', '🌺', '🌻', '🌼', '🌷', '🪻', '⚘️', '🌱', '🪴', '🌲', '🌳', '🌴', '🌵', '🌾', '🌿', '☘️', '🍀', '🍁', '🍂', '🍃', '🪹', '🪺', '🪾', '🏔', '⛰️', '🌋', '🗻', '🌏', '🏞', '🪨', '🪵'],
+            '음식 🍉': ['🍇', '🍈', '🍉', '🍊', '🍌', '🍍', '🍒', '🍓', '🍎', '🍅', '🌶', '🌽', '🫑', '🥦', '🍖', '🍗', '🥩', '🥓', '🍞', '🥖', '🥯', '🍔', '🍟', '🥪', '🌭', '🌮', '🌯', '🍕', '🍳', '🥘', '🍲', '𫕕', '🥣', '🍱', '🍘', '🍙', '🍚', '🍛', '🍝', '🍜', '🍦', '🍩', '🎂', '🍰', '🍬', '🍭', '🍸', '🍹', '🍼', '🍺', '🍻', '🧊', '🍽', '🥤', '🍴', '🥄', '🔪'],
+            '사물1 🏠': ['🧱', '🏗', '🏠', '🏘', '🛖', '🏢', '🏥', '🏫', '🏭', '🏰', '🗽', '🏯', '🏰', '🏛', '🕌', '🕍', '⛩️', '⛺️', '⛲️', '🛝', '🎡', '🎠', '🎢', '🎪', '🚎', '🚕', '🚒', '🛻', '🚙', '🚑', '🚂', '🚃', '🚌', '🚚', '🚛', '🚜', '🏍', '🛵', '🛴', '🛹', '🛼', '🚆', '🚇', '🚋', '⛵️', '🛶', '🚤', '🛫', '✈️', '🛫', '🛬', '🛩', '🚁', '🚀', '🛰', '🪂', '🗺'],
+            '사물2 ⚽️': ['🎄', '🎈', '🎉', '🎀', '🎁', '🎗', '⚽️', '⚾️', '🏀', '🔮', '🧩', '🧸', '🎲', '♥️', '🎨', '🖼', '🛍', '🎹', '🎻', '🎷', '🪗', '🎸', '🎺', '🪕', '🥁', '🪇', '🪈', '🪉', '📱', '☎️', '💻', '⌨️', '🖱', '🖨', '📷', '📕', '📚', '📖', '💶', '🖊', '🖌', '✂️', '📎', '🖇', '🛏', '🛋', '🪑', '🚽', '🛁', '🚿', '🧴', '🪒', '🧽', '🪥', '🗿', '🚬'],
+            '패션 👕': ['👓', '🕶', '🥽', '🥼', '🦺', '👔', '👕', '👖', '🧣', '🧤', '🧥', '🧦', '👗', '👘', '🥻', '🩱', '🩲', '🩳', '👙', '👚', '🪭', '👛', '👜', '🥋', '🛍', '🎒', '🩴', '👞', '👟', '🥾', '🥿', '👠', '👡', '🩰', '👢', '🪮', '👑', '👒', '🎩', '🎓', '🧢', '🪖', '⛑️', '📿', '💄', '💍', '💎'],
+            '기타 💯': ['💯', '💢', '💥', '💦', '💨', '💣', '💬', '🗯', '💭', '👣', '🫆']
+        };
+
+        const Sound = {
+            ctx: null,
+            init() {
+                if(!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            },
+            play(type) {
+                if(!this.ctx) this.init();
+                if(this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+
+                const t = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                if(type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, t);
+                    osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+                    gain.gain.setValueAtTime(0.5, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                    osc.start(t);
+                    osc.stop(t + 0.1);
+                } 
+                else if(type === 'magic') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, t);
+                    osc.frequency.linearRampToValueAtTime(800, t + 0.2);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.linearRampToValueAtTime(0, t + 0.3);
+                    osc.start(t);
+                    osc.stop(t + 0.3);
+                } 
+                else if(type === 'draw') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(150, t);
+                    gain.gain.setValueAtTime(0.3, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+                    osc.start(t);
+                    osc.stop(t + 0.05);
+                }
+                else if(type === 'bomb') {
+                    const bufferSize = this.ctx.sampleRate * 1.0; 
+                    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+                    const noise = this.ctx.createBufferSource();
+                    noise.buffer = buffer;
+                    
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 500;
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    gain.gain.setValueAtTime(1, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.8);
+                    noise.start(t);
+                    noise.stop(t + 0.8);
+                }
+            }
+        };
+
+        const App = {
+            dom: {},
+            state: {
+                mode: 'pencil', 
+                color: '#000000',
+                size: 5,
+                stampSize: 50,
+                stamp: STAMPS['사람 🧍'][0],
+                isDrawing: false,
+                startPos: null, lastPos: null,
+                hue: 0,
+                history: [],
+                flipX: false, 
+                flipY: false
+            },
+
+            init() {
+                this.dom = {
+                    canvas: document.getElementById('drawingCanvas'),
+                    ctx: document.getElementById('drawingCanvas').getContext('2d', {willReadFrequently: true}),
+                    pCanvas: document.getElementById('previewCanvas'),
+                    pCtx: document.getElementById('previewCanvas').getContext('2d'),
+                    wrapper: document.getElementById('canvas-wrapper'),
+                    bomb: document.getElementById('bomb-overlay')
+                };
+
+                this.dom.ctx.lineCap = 'round';
+                this.dom.ctx.lineJoin = 'round';
+                this.dom.pCtx.lineCap = 'round';
+                this.dom.pCtx.lineJoin = 'round';
+
+                this.renderColors();
+                this.renderStampCats();
+                this.setStampCat('사람 🧍');
+                this.bindEvents();
+                this.resizeCanvas();
+            },
+
+            resizeCanvas() {
+                const w = this.dom.wrapper.clientWidth;
+                const h = this.dom.wrapper.clientHeight;
+                if(this.dom.canvas.width === w && this.dom.canvas.height === h) return;
+                
+                let saved;
+                if(this.dom.canvas.width > 0) {
+                    saved = document.createElement('canvas');
+                    saved.width = this.dom.canvas.width; saved.height = this.dom.canvas.height;
+                    saved.getContext('2d').drawImage(this.dom.canvas,0,0);
+                }
+                this.dom.canvas.width = w; this.dom.canvas.height = h;
+                this.dom.pCanvas.width = w; this.dom.pCanvas.height = h;
+                
+                this.dom.ctx.lineCap = 'round'; this.dom.ctx.lineJoin = 'round';
+                this.dom.pCtx.lineCap = 'round'; this.dom.pCtx.lineJoin = 'round';
+                
+                if(saved) this.dom.ctx.drawImage(saved,0,0);
+            },
+
+            renderColors() {
+                const p = document.getElementById('color-palette');
+                p.innerHTML = '';
+                FINAL_COLORS.forEach(c => {
+                    const btn = document.createElement('div');
+                    btn.className = 'color-btn' + (c === 'rainbow' ? ' rainbow' : '');
+                    if(c !== 'rainbow') btn.style.backgroundColor = c;
+                    btn.onclick = () => {
+                        this.state.color = c;
+                        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        if(this.state.mode === 'eraser') this.setMode('pencil');
+                    };
+                    p.appendChild(btn);
+                });
+            },
+
+            renderStampCats() {
+                const scrollArea = document.getElementById('cat-scroll-area');
+                scrollArea.innerHTML = '';
+                Object.keys(STAMPS).forEach(catName => {
+                    const btn = document.createElement('button');
+                    btn.className = 'stamp-cat';
+                    btn.textContent = catName;
+                    btn.onclick = () => App.setStampCat(catName);
+                    scrollArea.appendChild(btn);
+                });
+            },
+
+            setStampCat(cat) {
+                const list = document.getElementById('stamp-list');
+                list.innerHTML = '';
+                
+                document.querySelectorAll('.stamp-cat').forEach(b => {
+                    b.classList.toggle('selected', b.textContent === cat);
+                });
+
+                if(STAMPS[cat]) {
+                    STAMPS[cat].forEach(s => {
+                        const btn = document.createElement('button');
+                        btn.className = 'stamp-btn';
+                        btn.textContent = s;
+                        btn.onclick = () => {
+                            this.state.stamp = s;
+                            this.setMode('stamp');
+                            document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('selected'));
+                            btn.classList.add('selected');
+                        };
+                        list.appendChild(btn);
+                    });
+                }
+            },
+
+            setMode(m) {
+                this.state.mode = m;
+                document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('selected'));
+                if(m !== 'stamp') {
+                    const btn = document.querySelector(`[data-mode="${m}"]`);
+                    if(btn) btn.classList.add('selected');
+                    document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('selected'));
+                }
+                document.getElementById('text-ui').style.display = (m === 'text') ? 'flex' : 'none';
+            },
+
+            toggleFlip(axis) {
+                if(axis === 'x') {
+                    this.state.flipX = !this.state.flipX;
+                    document.getElementById('btn-flip-x').classList.toggle('active', this.state.flipX);
+                } else {
+                    this.state.flipY = !this.state.flipY;
+                    document.getElementById('btn-flip-y').classList.toggle('active', this.state.flipY);
+                }
+            },
+
+            getPos(e) {
+                const rect = this.dom.pCanvas.getBoundingClientRect();
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: cx - rect.left, y: cy - rect.top };
+            },
+
+            drawTextWithTransform(ctx, txt, x, y, size, isPreview) {
+                ctx.save();
+                ctx.translate(x, y);
+                const scaleX = this.state.flipX ? -1 : 1;
+                const scaleY = this.state.flipY ? -1 : 1;
+                ctx.scale(scaleX, scaleY);
+                ctx.font = `bold ${size}px Arial`;
+                
+                if (isPreview) {
+                    ctx.fillStyle = (this.state.mode === 'text' ? '#ccc' : '#000');
+                    if (this.state.mode === 'stamp') ctx.fillStyle = '#000';
+                    ctx.globalAlpha = 0.5; 
+                } else {
+                    ctx.fillStyle = this.getColor();
+                    ctx.globalAlpha = 1.0; 
+                }
+
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(txt, 0, 0); 
+                ctx.restore();
+            },
+
+            onDown(pos) {
+                this.saveState();
+                this.state.isDrawing = true;
+                this.state.lastPos = pos;
+                this.state.startPos = pos;
+                
+                if(this.state.mode === 'stamp') {
+                    this.dom.pCtx.clearRect(0,0, this.dom.pCanvas.width, this.dom.pCanvas.height);
+                    this.drawTextWithTransform(this.dom.pCtx, this.state.stamp, pos.x, pos.y, this.state.stampSize, true);
+                    return; 
+                }
+
+                if(this.state.mode === 'paint') {
+                    Sound.play('magic');
+                    this.floodFill(pos.x, pos.y);
+                    this.state.isDrawing = false;
+                } 
+                else if(this.state.mode === 'text') {
+                    const txt = document.getElementById('text-val').value;
+                    this.drawTextWithTransform(this.dom.ctx, txt, pos.x, pos.y, this.state.size * 2, false);
+                    this.state.isDrawing = false;
+                }
+                else {
+                    Sound.play('draw');
+                    if(this.state.mode === 'brush') {
+                        if(this.state.color === 'rainbow') this.state.hue = Math.random() * 360;
+                        this.drawBrushDot(pos);
+                    } else if(this.isStrokeMode()) {
+                        if(this.state.color === 'rainbow') this.state.hue = Math.random() * 360;
+                        this.drawStroke(pos, true);
+                    }
+                }
+            },
+
+            onMove(pos) {
+                if(this.state.mode === 'stamp') {
+                    this.dom.pCtx.clearRect(0,0, this.dom.pCanvas.width, this.dom.pCanvas.height);
+                    this.drawTextWithTransform(this.dom.pCtx, this.state.stamp, pos.x, pos.y, this.state.stampSize, true);
+                    this.state.lastPos = pos; 
+                    return;
+                }
+                if(this.state.mode === 'text') {
+                    this.dom.pCtx.clearRect(0,0, this.dom.pCanvas.width, this.dom.pCanvas.height);
+                    const txt = document.getElementById('text-val').value;
+                    this.drawTextWithTransform(this.dom.pCtx, txt, pos.x, pos.y, this.state.size * 2, true);
+                    return;
+                }
+
+                const shapes = ['rect', 'circle', 'line', 'triangle'];
+                if(this.state.isDrawing && shapes.includes(this.state.mode)) {
+                    this.dom.pCtx.clearRect(0,0, this.dom.pCanvas.width, this.dom.pCanvas.height);
+                    this.drawShapePreview(this.state.startPos, pos);
+                    return;
+                }
+                
+                if(this.state.isDrawing) {
+                    if (this.state.mode === 'brush') {
+                        this.interpolate(this.state.lastPos, pos);
+                    } else if(this.isStrokeMode()) {
+                        this.drawStroke(pos, false);
+                    }
+                    this.state.lastPos = pos;
+                }
+            },
+
+            onUp() {
+                if(this.state.isDrawing) {
+                    if(this.state.mode === 'stamp') {
+                        Sound.play('pop'); 
+                        this.dom.pCtx.clearRect(0,0,this.dom.pCanvas.width, this.dom.pCanvas.height);
+                        this.drawTextWithTransform(this.dom.ctx, this.state.stamp, this.state.lastPos.x, this.state.lastPos.y, this.state.stampSize, false);
+                    }
+                    
+                    const shapes = ['rect', 'circle', 'line', 'triangle'];
+                    if(shapes.includes(this.state.mode)) {
+                        Sound.play('draw'); 
+                        this.dom.ctx.globalAlpha = 1.0; 
+                        this.dom.ctx.drawImage(this.dom.pCanvas, 0, 0);
+                        this.dom.pCtx.clearRect(0,0,this.dom.pCanvas.width, this.dom.pCanvas.height);
+                    }
+                }
+                this.state.isDrawing = false;
+            },
+
+            isStrokeMode() { return ['pencil', 'eraser', 'brush-spray'].includes(this.state.mode); },
+
+            interpolate(p1, p2) {
+                let xDist = p2.x - p1.x;
+                let yDist = p2.y - p1.y;
+                let dist = Math.sqrt(xDist * xDist + yDist * yDist);
+                
+                for (let i = 0; i < dist; i += 0.5) {
+                    let x = p1.x + (xDist / dist) * i;
+                    let y = p1.y + (yDist / dist) * i;
+                    this.drawBrushDot({x: x, y: y});
+                }
+            },
+
+            drawBrushDot(pos) {
+                const ctx = this.dom.ctx;
+                const radius = this.state.size / 2;
+                
+                ctx.globalAlpha = 0.01; 
+                
+                if (this.state.color === 'rainbow') {
+                    ctx.fillStyle = `hsl(${this.state.hue}, 100%, 50%)`;
+                    this.state.hue = (this.state.hue + 0.5) % 360; 
+                } else {
+                    ctx.fillStyle = this.state.color;
+                }
+
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, radius, 0, Math.PI*2);
+                ctx.fill();
+            },
+
+            drawStroke(pos, isDot = false) {
+                const ctx = this.dom.ctx;
+                const { mode, size, lastPos, color } = this.state;
+                
+                ctx.lineWidth = size;
+                ctx.strokeStyle = (mode === 'eraser') ? '#fff' : this.getColor();
+                ctx.fillStyle = ctx.strokeStyle;
+                ctx.shadowBlur = 0; 
+                ctx.globalAlpha = 1.0; 
+
+                if (mode === 'eraser' || mode === 'pencil') {
+                    ctx.beginPath();
+                    if(isDot) { 
+                        ctx.arc(pos.x, pos.y, size/2, 0, Math.PI*2); 
+                        ctx.fill(); 
+                    } else { 
+                        ctx.moveTo(lastPos.x, lastPos.y); 
+                        ctx.lineTo(pos.x, pos.y); 
+                        ctx.stroke(); 
+                    }
+                } 
+                else if (mode === 'brush-spray') {
+                    for(let i=0; i<30; i++) {
+                        const ox = (Math.random() - 0.5) * size * 2;
+                        const oy = (Math.random() - 0.5) * size * 2;
+                        ctx.fillRect(pos.x + ox, pos.y + oy, 1, 1);
+                    }
+                }
+                if(color === 'rainbow' && mode !== 'eraser') this.state.hue = (this.state.hue + 5) % 360;
+            },
+
+            drawShapePreview(start, curr) {
+                const ctx = this.dom.pCtx;
+                ctx.strokeStyle = this.getColor(); ctx.lineWidth = this.state.size;
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1.0;
+                ctx.beginPath();
+                const w = curr.x - start.x; const h = curr.y - start.y;
+                if(this.state.mode === 'rect') ctx.strokeRect(start.x, start.y, w, h);
+                else if(this.state.mode === 'circle') {
+                    ctx.beginPath(); ctx.ellipse(start.x + w/2, start.y + h/2, Math.abs(w)/2, Math.abs(h)/2, 0, 0, Math.PI*2); ctx.stroke();
+                } else if(this.state.mode === 'line') {
+                    ctx.moveTo(start.x, start.y); ctx.lineTo(curr.x, curr.y); ctx.stroke();
+                } else if(this.state.mode === 'triangle') {
+                    ctx.moveTo(start.x + w/2, start.y); ctx.lineTo(start.x, start.y + h); ctx.lineTo(start.x + w, start.y + h); ctx.closePath(); ctx.stroke();
+                }
+            },
+
+            getColor() { return this.state.color === 'rainbow' ? `hsl(${this.state.hue}, 100%, 50%)` : this.state.color; },
+
+            floodFill(startX, startY) {
+                const ctx = this.dom.ctx;
+                const canvas = this.dom.canvas;
+                const w = canvas.width;
+                const h = canvas.height;
+                startX = Math.round(startX); startY = Math.round(startY);
+                const imgData = ctx.getImageData(0, 0, w, h);
+                const data = imgData.data;
+                const startPos = (startY * w + startX) * 4;
+                const [startR, startG, startB, startA] = [data[startPos], data[startPos+1], data[startPos+2], data[startPos+3]];
+
+                const tempCanvas = document.createElement('canvas'); tempCanvas.width = 1; tempCanvas.height = 1;
+                const tempCtx = tempCanvas.getContext('2d'); tempCtx.fillStyle = this.getColor(); tempCtx.fillRect(0,0,1,1);
+                const fillData = tempCtx.getImageData(0,0,1,1).data;
+                const [fillR, fillG, fillB, fillA] = [fillData[0], fillData[1], fillData[2], 255];
+
+                if (startR === fillR && startG === fillG && startB === fillB && startA === fillA) return;
+
+                const stack = [[startX, startY]];
+                while(stack.length) {
+                    const [x, y] = stack.pop();
+                    const pos = (y * w + x) * 4;
+                    if (x < 0 || x >= w || y < 0 || y >= h) continue;
+                    if (data[pos] === startR && data[pos+1] === startG && data[pos+2] === startB && data[pos+3] === startA) {
+                        data[pos] = fillR; data[pos+1] = fillG; data[pos+2] = fillB; data[pos+3] = fillA;
+                        stack.push([x+1, y]); stack.push([x-1, y]); stack.push([x, y+1]); stack.push([x, y-1]);
+                    }
+                }
+                ctx.putImageData(imgData, 0, 0);
+            },
+
+            saveState() { this.state.history.push(this.dom.canvas.toDataURL()); if(this.state.history.length > 10) this.state.history.shift(); },
+            undo() {
+                if(this.state.history.length === 0) { this.dom.ctx.clearRect(0,0,this.dom.canvas.width, this.dom.canvas.height); return; }
+                const img = new Image(); img.src = this.state.history.pop();
+                img.onload = () => { this.dom.ctx.clearRect(0,0,this.dom.canvas.width, this.dom.canvas.height); this.dom.ctx.drawImage(img,0,0); }
+            },
+            clearAll() {
+                Sound.play('bomb');
+                this.saveState();
+                const bomb = this.dom.bomb; bomb.style.display = 'flex';
+                document.getElementById('main-area').classList.add('shake');
+                setTimeout(() => { this.dom.ctx.clearRect(0,0,this.dom.canvas.width, this.dom.canvas.height); bomb.style.display = 'none'; document.getElementById('main-area').classList.remove('shake'); }, 800);
+            },
+
+            bindEvents() {
+                const el = this.dom.pCanvas;
+                const start = e => { e.preventDefault(); this.onDown(this.getPos(e)); };
+                const move = e => { e.preventDefault(); this.onMove(this.getPos(e)); };
+                const end = e => { e.preventDefault(); this.onUp(); };
+                el.addEventListener('mousedown', start); el.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+                el.addEventListener('touchstart', start, {passive:false}); el.addEventListener('touchmove', move, {passive:false}); el.addEventListener('touchend', end);
+
+                el.addEventListener('mouseleave', () => {
+                    this.dom.pCtx.clearRect(0, 0, this.dom.pCanvas.width, this.dom.pCanvas.height);
+                });
+
+                document.getElementById('btn-save').onclick = () => { const a = document.createElement('a'); a.download = 'kids_pic.png'; a.href = this.dom.canvas.toDataURL(); a.click(); };
+                document.getElementById('btn-undo').onclick = () => this.undo();
+                document.getElementById('btn-clear').onclick = () => this.clearAll();
+                document.getElementById('btn-hand').onclick = () => document.getElementById('main-area').classList.toggle('left-handed');
+                document.getElementById('text-btn').onclick = () => alert('캔버스에 콕 찍어주세요!');
+
+                document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => this.setMode(b.dataset.mode));
+                document.querySelectorAll('.size-btn').forEach(b => b.onclick = () => {
+                    this.state.size = parseInt(b.dataset.size);
+                    document.querySelectorAll('.size-btn').forEach(x => x.classList.remove('selected'));
+                    b.classList.add('selected');
+                });
+                
+                const slider = document.getElementById('stamp-slider');
+                slider.oninput = (e) => { this.state.stampSize = parseInt(e.target.value); document.getElementById('stamp-size-val').innerText = e.target.value; };
+                
+                window.addEventListener('resize', () => this.resizeCanvas());
+            }
+        };
+
+        window.onload = () => App.init();
+    </script>
+</body>
+</html>

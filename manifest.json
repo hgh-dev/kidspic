@@ -1,0 +1,21 @@
+{
+  "name": "KidsPic - 아빠가 만든 그림판",
+  "short_name": "KidsPic",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#ffffff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
