@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KidsPic v3.7.1 (Center Tools)</title>
+    <title>KidsPic v3.7.3 (Safe Bottom)</title>
+    
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon.png">
+
     <style>
         /* --- 1. 기본 설정 --- */
         :root {
@@ -54,7 +58,7 @@
             flex: 1;
             display: flex;
             align-items: center;
-            justify-content: center; /* [v3.7.1] 도구들을 가운데로 정렬! */
+            justify-content: center;
             gap: 5px;
             overflow-x: auto;
             white-space: nowrap;
@@ -281,7 +285,8 @@
             flex: 1;
             position: relative;
             background-color: #fff; 
-            margin: 10px;
+            /* [수정됨] 시계 방향: 위10, 우10, 아래60(안전지대), 좌10 */
+            margin: 10px 10px 60px 10px;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             overflow: hidden;
@@ -890,6 +895,14 @@
         };
 
         window.onload = () => App.init();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+            .then((reg) => console.log('서비스 워커 등록 완료!', reg))
+            .catch((err) => console.log('서비스 워커 등록 실패 ㅠㅠ', err));
+        }
     </script>
 </body>
 </html>

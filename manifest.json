@@ -1,5 +1,5 @@
 {
-  "name": "KidsPic - 아빠가 만든 그림판",
+  "name": "KidsPic",
   "short_name": "KidsPic",
   "start_url": "./index.html",
   "display": "standalone",
