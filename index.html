@@ -36,12 +36,12 @@
 
         /* --- 2. 상단 바 (Top Bar) --- */
         #top-bar {
-            height: 75px;
+            height: 60px;
             background-color: var(--sidebar-bg);
             border-bottom: 1px solid #ccc;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             padding: 0 5px;
             flex-shrink: 0;
             z-index: 20;
@@ -60,7 +60,7 @@
             flex: 1;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 5px;
             overflow-x: auto;
             white-space: nowrap;
@@ -128,6 +128,7 @@
             overflow: hidden;
             position: relative;
             min-height: 0;
+            height: auto;
         }
 
         #main-area.left-handed {
@@ -466,6 +467,24 @@
             }
         }
 
+        /* --- 5. 하단 바 (Bottom Bar) --- */
+        #bottom-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--sidebar-bg);
+            border-top: 1px solid #ccc;
+            padding: 0 10px;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        #bottom-bar .group {
+            display: flex;
+            gap: 5px;
+        }
+
         /* --- 5. 반응형 처리 (800px 미만) --- */
         #btn-menu {
             display: none;
@@ -501,16 +520,6 @@
             <button class="icon-btn" id="btn-menu" title="메뉴"><svg viewBox="0 0 24 24">
                     <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
                 </svg></button>
-            <button class="icon-btn" id="btn-save" title="저장"><svg viewBox="0 0 24 24">
-                    <path
-                        d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" />
-                </svg></button>
-            <button class="icon-btn" id="btn-undo" title="되돌리기"><svg viewBox="0 0 24 24">
-                    <path
-                        d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
-                </svg></button>
-            <button class="icon-btn" id="btn-clear" style="border-color:#ffaaaa; font-size: 20px;"
-                title="펑! (초기화)">💣</button>
         </div>
 
         <div id="top-tools">
@@ -553,12 +562,7 @@
             </div>
         </div>
 
-        <div class="top-group">
-
-            <button class="icon-btn" id="btn-hand" title="화면 좌우 변경"><svg viewBox="0 0 24 24">
-                    <path d="M6.99,11L3,15l3.99,4v-3H14v-2H6.99V11z M21,9l-3.99-4v3H10v2h7.01v3L21,9z" />
-                </svg></button>
-        </div>
+    </div>
     </div>
 
     <div id="main-area">
@@ -621,6 +625,27 @@
             <div id="bomb-overlay">💣</div>
         </div>
 
+    </div>
+
+    <div id="bottom-bar">
+        <div class="group">
+            <button class="icon-btn" id="btn-undo" title="되돌리기"><svg viewBox="0 0 24 24">
+                    <path
+                        d="M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z" />
+                </svg></button>
+            <button class="icon-btn" id="btn-clear" style="border-color:#ffaaaa; font-size: 20px;"
+                title="펑! (초기화)">💣</button>
+        </div>
+
+        <div class="group">
+            <button class="icon-btn" id="btn-hand" title="화면 좌우 변경"><svg viewBox="0 0 24 24">
+                    <path d="M6.99,11L3,15l3.99,4v-3H14v-2H6.99V11z M21,9l-3.99-4v3H10v2h7.01v3L21,9z" />
+                </svg></button>
+            <button class="icon-btn" id="btn-save" title="저장"><svg viewBox="0 0 24 24">
+                    <path
+                        d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" />
+                </svg></button>
+        </div>
     </div>
 
     <script>
