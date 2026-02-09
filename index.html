@@ -403,14 +403,7 @@
             border-color: #333;
         }
 
-        #btn-lock.locked {
-            background-color: #FF6B6B;
-            border-color: #FF6B6B;
-        }
 
-        #btn-lock.locked svg {
-            fill: white;
-        }
 
         /* --- 캔버스 --- */
         #canvas-wrapper {
@@ -472,6 +465,32 @@
                 transform: translate(5px, -5px);
             }
         }
+
+        /* --- 5. 반응형 처리 (800px 미만) --- */
+        #btn-menu {
+            display: none;
+        }
+
+        @media (max-width: 800px) {
+            #btn-menu {
+                display: block;
+            }
+
+            #sidebar {
+                display: none;
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                z-index: 100;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                height: 100%;
+            }
+
+            #sidebar.show {
+                display: flex;
+            }
+        }
     </style>
 </head>
 
@@ -479,6 +498,9 @@
 
     <div id="top-bar">
         <div class="top-group">
+            <button class="icon-btn" id="btn-menu" title="메뉴"><svg viewBox="0 0 24 24">
+                    <path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />
+                </svg></button>
             <button class="icon-btn" id="btn-save" title="저장"><svg viewBox="0 0 24 24">
                     <path
                         d="M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z" />
@@ -532,10 +554,7 @@
         </div>
 
         <div class="top-group">
-            <button class="icon-btn" id="btn-lock" title="잠금 (뒤로가기 방지)"><svg viewBox="0 0 24 24">
-                    <path
-                        d="M12,17C10.89,17 10,16.1 10,15C10,13.89 10.89,13 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17M18,20V10H6V20H18M18,8A5,5 0 0,0 13,3A5,5 0 0,0 8,8H6V22H18V8M8,8A5,5 0 0,1 13,3A5,5 0 0,1 18,8H8Z" />
-                </svg></button>
+
             <button class="icon-btn" id="btn-hand" title="화면 좌우 변경"><svg viewBox="0 0 24 24">
                     <path d="M6.99,11L3,15l3.99,4v-3H14v-2H6.99V11z M21,9l-3.99-4v3H10v2h7.01v3L21,9z" />
                 </svg></button>
@@ -712,8 +731,7 @@
                 hue: 0,
                 history: [],
                 flipX: false,
-                flipY: false,
-                locked: false
+                flipY: false
             },
 
             init() {
@@ -1087,12 +1105,7 @@
                     this.dom.pCtx.clearRect(0, 0, this.dom.pCanvas.width, this.dom.pCanvas.height);
                 });
 
-                // 뒤로가기 방지용 popstate
-                window.addEventListener('popstate', () => {
-                    if (this.state.locked) {
-                        history.pushState(null, null, location.href);
-                    }
-                });
+
 
                 document.getElementById('btn-save').onclick = () => {
                     const now = new Date();
@@ -1102,15 +1115,27 @@
                     const hh = String(now.getHours()).padStart(2, '0');
                     const min = String(now.getMinutes()).padStart(2, '0');
 
+                    // [수정] 배경을 흰색으로 채워서 저장
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = this.dom.canvas.width;
+                    tempCanvas.height = this.dom.canvas.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    // 1. 흰색 배경 채우기
+                    tempCtx.fillStyle = '#FFFFFF';
+                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                    // 2. 원본 그림 그리기
+                    tempCtx.drawImage(this.dom.canvas, 0, 0);
+
                     const a = document.createElement('a');
                     a.download = `kidspic_${yy}${mm}${dd}_${hh}${min}.png`;
-                    a.href = this.dom.canvas.toDataURL();
+                    a.href = tempCanvas.toDataURL();
                     a.click();
                 };
                 document.getElementById('btn-undo').onclick = () => this.undo();
                 document.getElementById('btn-clear').onclick = () => this.clearAll();
                 document.getElementById('btn-hand').onclick = () => document.getElementById('main-area').classList.toggle('left-handed');
-                document.getElementById('btn-lock').onclick = () => this.toggleLock();
                 document.getElementById('text-btn').onclick = () => alert('캔버스에 콕 찍어주세요!');
 
                 document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => this.setMode(b.dataset.mode));
@@ -1120,39 +1145,15 @@
                     b.classList.add('selected');
                 });
 
+                document.getElementById('btn-menu').onclick = () => document.getElementById('sidebar').classList.toggle('show');
+
                 const slider = document.getElementById('stamp-slider');
                 slider.oninput = (e) => { this.state.stampSize = parseInt(e.target.value); document.getElementById('stamp-size-val').innerText = e.target.value; };
 
                 window.addEventListener('resize', () => this.resizeCanvas());
             },
 
-            toggleLock() {
-                this.state.locked = !this.state.locked;
-                const btn = document.getElementById('btn-lock');
 
-                if (this.state.locked) {
-                    btn.classList.add('locked');
-                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12,17C10.89,17 10,16.1 10,15C10,13.89 10.89,13 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17M18,20V10H6V20H18M18,8A5,5 0 0,0 13,3A5,5 0 0,0 8,8H6V22H18V8M9,8V3C9,3 15,3 15,8H9Z"/></svg>'; // Closed Lock
-
-                    // Fullscreen
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch((e) => console.log(e));
-                    }
-                    // History Push
-                    history.pushState(null, null, location.href);
-                    // Overscroll
-                    document.body.style.overscrollBehavior = 'none';
-                } else {
-                    btn.classList.remove('locked');
-                    btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12,17C10.89,17 10,16.1 10,15C10,13.89 10.89,13 12,13A2,2 0 0,1 14,15A2,2 0 0,1 12,17M18,20V10H6V20H18M18,8A5,5 0 0,0 13,3A5,5 0 0,0 8,8H6V22H18V8M8,8A5,5 0 0,1 13,3A5,5 0 0,1 18,8H8Z"/></svg>'; // Open Lock
-
-                    // Exit Fullscreen
-                    if (document.fullscreenElement) {
-                        document.exitFullscreen().catch((e) => console.log(e));
-                    }
-                    document.body.style.overscrollBehavior = 'auto';
-                }
-            }
         };
 
         window.onload = () => App.init();
