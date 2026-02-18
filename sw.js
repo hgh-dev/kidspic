@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kidspic-v3.5.1'; // 여기 버전을 올렸습니다!
+const CACHE_NAME = 'kidspic-v3.5.2'; // 여기 버전을 올렸습니다!
 const FILES_TO_CACHE = [
   './',
   './index.html',

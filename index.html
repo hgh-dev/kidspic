@@ -1203,6 +1203,13 @@
                 }
             },
 
+            setColor(color) {
+                this.state.color = color;
+                // 색상을 변경하면 지우개 모드에서 연필 모드로 변경 (사용자 편의성)
+                if (this.state.mode === 'eraser') this.setMode('pencil');
+                this.renderColors();
+            },
+
             getColor() { return this.state.color === 'rainbow' ? `hsl(${this.state.hue}, 100%, 50%)` : this.state.color; },
 
             floodFill(startX, startY) {
