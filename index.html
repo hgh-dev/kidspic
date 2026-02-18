@@ -14,7 +14,7 @@
         :root {
             --bg-color: #f4f7f6;
             --sidebar-bg: #ffffff;
-            --sidebar-width: 450px;
+            --sidebar-width: 350px;
             --accent-color: #FF6B6B;
             --btn-border: #ddd;
         }
@@ -36,7 +36,7 @@
 
         /* --- 2. 상단 바 (Top Bar) --- */
         #top-bar {
-            height: 60px;
+            height: 50px;
             background-color: var(--sidebar-bg);
             border-bottom: 1px solid #ccc;
             display: flex;
@@ -74,9 +74,9 @@
         }
 
         .icon-btn {
-            width: 60px;
-            height: 60px;
-            padding: 12px;
+            width: 50px;
+            height: 50px;
+            padding: 10px;
             flex-shrink: 0;
             box-sizing: border-box;
         }
@@ -97,7 +97,7 @@
             padding: 3px;
             border-radius: 4px;
             flex-shrink: 0;
-            height: 60px;
+            height: 50px;
             box-sizing: border-box;
         }
 
@@ -111,8 +111,8 @@
 
         #text-btn {
             padding: 0 15px;
-            height: 45px;
-            font-size: 18px;
+            height: 36px;
+            font-size: 16px;
             background: #333;
             color: white;
             border: none;
@@ -246,7 +246,7 @@
 
         /* 펜 크기 */
         .size-btn {
-            height: 50px;
+            height: 40px;
         }
 
         .size-dot {
@@ -287,9 +287,9 @@
         }
 
         .stamp-cat {
-            height: 50px;
+            height: 40px;
             padding: 0;
-            font-size: 16px;
+            font-size: 14px;
             white-space: nowrap;
             border: 1px solid #ccc;
             background: #fff;
@@ -321,8 +321,8 @@
         }
 
         .stamp-btn {
-            font-size: 36px;
-            height: 70px;
+            font-size: 28px;
+            height: 54px;
             border: 1px solid #eee;
             background: #fff;
             border-radius: 5px;
@@ -345,12 +345,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            height: 60px;
+            height: 40px;
         }
 
         /* 스크롤바(Range) 커스텀 스타일링 */
         input[type=range] {
             flex: 1;
+            appearance: none;
             -webkit-appearance: none;
             background: transparent;
         }
@@ -366,6 +367,7 @@
 
         /* 손잡이(동그라미) 스타일 */
         input[type=range]::-webkit-slider-thumb {
+            appearance: none;
             -webkit-appearance: none;
             height: 45px;
             width: 45px;
@@ -392,8 +394,8 @@
 
         .flip-btn {
             flex: 1;
-            height: 60px;
-            font-size: 20px;
+            height: 40px;
+            font-size: 16px;
             gap: 5px;
             border-width: 2px;
         }
@@ -411,8 +413,8 @@
             flex: 1;
             position: relative;
             background-color: #fff;
-            /* [수정됨] 시계 방향: 위10, 우10, 아래60(안전지대), 좌10 */
-            margin: 60px 60px 60px 60px;
+            /* [수정됨] 시계 방향: 위10, 우10, 아래50(안전지대), 좌10 */
+            margin: 50px 60px 50px 60px;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             overflow: hidden;
@@ -469,7 +471,7 @@
 
         /* --- 5. 하단 바 (Bottom Bar) --- */
         #bottom-bar {
-            height: 60px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -483,6 +485,72 @@
         #bottom-bar .group {
             display: flex;
             gap: 5px;
+        }
+
+        /* --- 6. 색상 선택 모달 --- */
+        #color-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #color-modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+        }
+
+        .more-btn {
+            background-color: #eee !important;
+            font-weight: bold;
+            font-size: 20px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         /* --- 5. 반응형 처리 (800px 미만) --- */
@@ -648,13 +716,30 @@
         </div>
     </div>
 
+    <!-- 색상 선택 모달 -->
+    <div id="color-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">색상 더보기</span>
+                <button class="modal-close" onclick="App.closeColorModal()">&times;</button>
+            </div>
+            <div class="modal-grid" id="modal-color-list"></div>
+        </div>
+    </div>
+
     <script>
-        const FINAL_COLORS = [
+        const ALL_COLORS = [
             '#FF0000', '#FF7F00', '#FFFF00', '#ADFF2F', '#00FF00', '#00FFFF', '#0000FF', '#4B0082', '#8B4513',
             '#FF6666', '#FFA500', '#FFFF99', '#98FB98', '#32CD32', '#87CEEB', '#1E90FF', '#8A2BE2', '#A0522D',
             '#FFC0CB', '#FFDAB9', '#FFFACD', '#F0FFF0', '#F5FFFA', '#E0FFFF', '#F0F8FF', '#E6E6FA', '#D2B48C',
             '#8B0000', '#D2691E', '#B8860B', '#556B2F', '#006400', '#008080', '#000080', '#483D8B', '#696969',
             '#000000', '#2F4F4F', '#708090', '#A9A9A9', '#C0C0C0', '#DCDCDC', '#F5F5F5', '#FFFFFF', 'rainbow'
+        ];
+
+        const MAIN_COLORS = [
+            '#FF0000', '#FF7F00', '#FFFF00', '#ADFF2F', '#008000',
+            '#87CEEB', '#0000FF', '#8A2BE2', '#FFC0CB', '#8B4513',
+            '#FFFFFF', '#000000', 'rainbow'
         ];
 
         const STAMPS = {
@@ -663,9 +748,9 @@
             '동물 🐒': ['🐒', '🦍', '🦧', '🐕', '🐈', '🐈‍⬛', '🐅', '🐆', '🫏', '🐎', '🦓', '🦌', '🦬', '🐂', '🐃', '🐄', '🐖', '🐏', '🐑', '🐐', '🐪', '🦙', '🦒', '🐘', '🐀', '🐇', '🐿', '🦫', '🦔', '🦇', '🦦', '🦘', '🦃', '🐓', '🐤', '🐥', '🐦', '🐧', '🕊', '🦅', '🦆', '🦢', '🦉', '🦩', '🦚', '🦜', '🪿', '🐊', '🐢', '🦎', '🐍', '🐉', '🦕', '🐳', '🐋', '🐬', '🦭', '🐟', '🐠', '🐡', '🦈', '🐙', '🦀', '🦞', '🦐', '🦑', '🐚', '🪸', '🪼', '🦄', '🐮', '🐷', '🐗', '🐺', '🦊', '🐻', '🐻‍❄️', '🐨', '🐼', '🐹', '🐸'],
             '곤충 🦋': ['🐌', '🦋', '🐛', '🐜', '🐝', '🪲', '🐞', '🦗', '🕷', '🪳', '🕸', '🦂', '🦟', '🪰', '🪱', '🦠'],
             '자연 ☀️': ['🌞', '☀️', '🌕', '🌒', '⭐️', '🌟', '🪐', '🌛', '🌚', '☁️', '🌩', '🌪', '🌈', '⛄️', '⚡️', '🌊', '🔥', '💧', '❄️', '💐', '🌸', '💮', '🪷', '🏵', '🌹', '🥀', '🌺', '🌻', '🌼', '🌷', '🪻', '⚘️', '🌱', '🪴', '🌲', '🌳', '🌴', '🌵', '🌾', '🌿', '☘️', '🍀', '🍁', '🍂', '🍃', '🪹', '🪺', '🪾', '🏔', '⛰️', '🌋', '🗻', '🌏', '🏞', '🪨', '🪵', '☄️', '☔️', '☃️', '🏜', '🏝'],
-            '음식 🍉': ['🍇', '🍈', '🍉', '🍊', '🍌', '🍍', '🍒', '🍓', '🍎', '🍅', '🌶', '🌽', '🫑', '🥦', '🍖', '🍗', '🥩', '🥓', '🍞', '🥖', '🥯', '🍔', '🍟', '🥪', '🌭', '🌮', '🌯', '🍕', '🍳', '🥘', '🍲', '𫕕', '🥣', '🍱', '🍘', '🍙', '🍚', '🍛', '🍝', '🍜', '🍦', '🍩', '🎂', '🍰', '🍬', '🍭', '🍸', '🍹', '🍼', '🍺', '🍻', '🧊', '🍽', '🥤', '🍴', '🥄', '🔪', '🥐', '🥞', '🧇', '🥨', '🥚', '🧈', '🍿', '🥟', '🧋', '🍡', '🍢', '🍣', '🍤'],
+            '음식 🍉': ['🍇', '🍈', '🍉', '🍊', '🍌', '🍍', '🍒', '🍓', '🍎', '🍅', '🌶', '🌽', '🫑', '🥦', '🍖', '🍗', '🥩', '🥓', '🍞', '🥖', '🥯', '🍔', '🍟', '🥪', '🌭', '🌮', '🌯', '🍕', '🍳', '🥘', '🍲', '🥣', '🍱', '🍘', '🍙', '🍚', '🍛', '🍝', '🍜', '🍦', '🍩', '🎂', '🍰', '🍬', '🍭', '🍸', '🍹', '🍼', '🍺', '🍻', '🧊', '🍽', '🥤', '🍴', '🥄', '🔪', '🥐', '🥞', '🧇', '🥨', '🥚', '🧈', '🍿', '🥟', '🧋', '🍡', '🍢', '🍣', '🍤'],
             '사물1 🏠': ['🧱', '🏗', '🏠', '🏘', '🛖', '🏢', '🏥', '🏫', '🏭', '🏰', '🗽', '🏯', '🏰', '🏛', '🕌', '🕍', '⛩️', '⛺️', '⛲️', '🛝', '🎡', '🎠', '🎢', '🎪', '🚎', '🚕', '🚒', '🛻', '🚙', '🚑', '🚂', '🚃', '🚌', '🚚', '🚛', '🚜', '🏍', '🛵', '🛴', '🛹', '🛼', '🚆', '🚇', '🚋', '⛵️', '🛶', '🚤', '🛫', '✈️', '🛫', '🛬', '🛩', '🚁', '🚀', '🛰', '🪂', '🗺', '🚗', '🏎', '🚓', '🚐', '🚲', '🚢', '🛸', '⚓️', '🚦'],
-            '사물2 ⚽️': ['�', '🎗', '🎁', '💝', '🧧', '🎏', '🎐', '�', '�', '�', '�', '�', '⚽️', '⚾️', '🏀', '🔮', '🧩', '🧸', '🎲', '♥️', '🎨', '🖼', '🛍', '🎹', '🎻', '🎷', '🪗', '🎸', '🎺', '🪕', '🥁', '🪇', '🪈', '🪉', '📱', '☎️', '💻', '⌨️', '🖱', '🖨', '📷', '📕', '📚', '📖', '💶', '🖊', '🖌', '✂️', '📎', '🖇', '🛏', '🛋', '🪑', '🚽', '🛁', '🚿', '🧴', '🪒', '🧽', '🪥', '🗿', '🚬'],
+            '사물2 ⚽️': ['', '🎗', '🎁', '💝', '🧧', '🎏', '🎐', '⚽️', '⚾️', '🏀', '🔮', '🧩', '🧸', '🎲', '♥️', '🎨', '🖼', '🛍', '🎹', '🎻', '🎷', '🪗', '🎸', '🎺', '🪕', '🥁', '🪇', '🪈', '🪉', '📱', '☎️', '💻', '⌨️', '🖱', '🖨', '📷', '📕', '📚', '📖', '💶', '🖊', '🖌', '✂️', '📎', '🖇', '🛏', '🛋', '🪑', '🚽', '🛁', '🚿', '🧴', '🪒', '🧽', '🪥', '🗿', '🚬'],
             '패션 👕': ['🩰', '👓', '🕶', '🥽', '🥼', '🦺', '👔', '👕', '👖', '🧣', '🧤', '🧥', '🧦', '👗', '👘', '🥻', '🩱', '🩲', '🩳', '👙', '👚', '🪭', '👛', '👜', '🥋', '🛍', '🎒', '🩴', '👞', '👟', '🥾', '🥿', '👠', '👡', '👢', '🪮', '👑', '👒', '🎩', '🎓', '🧢', '🪖', '⛑️', '📿', '💄', '💍', '💎'],
             '기타 💯': ['💯', '💢', '💥', '💦', '💨', '💣', '💬', '🗯', '💭', '👣', '🫆']
         };
@@ -775,6 +860,7 @@
                 this.dom.pCtx.lineJoin = 'round';
 
                 this.renderColors();
+                this.renderMoreColors(); // 모달 색상 렌더링
                 this.renderStampCats();
                 this.setStampCat('사람 🧍');
                 this.bindEvents();
@@ -782,6 +868,11 @@
 
                 // 우클릭 방지
                 document.addEventListener('contextmenu', event => event.preventDefault());
+
+                // 모달 배경 클릭 닫기
+                document.getElementById('color-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'color-modal') this.closeColorModal();
+                });
             },
 
             resizeCanvas() {
@@ -805,20 +896,61 @@
             },
 
             renderColors() {
-                const p = document.getElementById('color-palette');
-                p.innerHTML = '';
-                FINAL_COLORS.forEach(c => {
+                const palette = document.getElementById('color-palette');
+                palette.innerHTML = '';
+
+                // 주요 색상 13개 먼저 렌더링
+                MAIN_COLORS.forEach(color => {
                     const btn = document.createElement('div');
-                    btn.className = 'color-btn' + (c === 'rainbow' ? ' rainbow' : '');
-                    if (c !== 'rainbow') btn.style.backgroundColor = c;
-                    btn.onclick = () => {
-                        this.state.color = c;
-                        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                        if (this.state.mode === 'eraser') this.setMode('pencil');
-                    };
-                    p.appendChild(btn);
+                    btn.className = 'color-btn';
+                    if (color === 'rainbow') btn.classList.add('rainbow');
+                    else btn.style.backgroundColor = color;
+
+                    if (this.state.color === color) btn.classList.add('selected');
+
+                    btn.addEventListener('click', () => this.setColor(color));
+                    palette.appendChild(btn);
                 });
+
+                // 더보기 버튼 추가
+                const moreBtn = document.createElement('div');
+                moreBtn.className = 'color-btn more-btn';
+                moreBtn.innerText = '+';
+                moreBtn.title = '더보기';
+                moreBtn.addEventListener('click', () => this.openColorModal());
+                palette.appendChild(moreBtn);
+            },
+
+            renderMoreColors() {
+                const list = document.getElementById('modal-color-list');
+                list.innerHTML = '';
+
+                // MAIN_COLORS에 없는 색상만 필터링
+                const extraColors = ALL_COLORS.filter(c => !MAIN_COLORS.includes(c));
+
+                extraColors.forEach(color => {
+                    const btn = document.createElement('div');
+                    btn.className = 'color-btn';
+                    if (color === 'rainbow') btn.classList.add('rainbow');
+                    else btn.style.backgroundColor = color;
+
+                    // 모달 내 버튼 크기 조정 (선택 사항)
+                    btn.style.height = '40px';
+
+                    btn.addEventListener('click', () => {
+                        this.setColor(color);
+                        this.closeColorModal();
+                    });
+                    list.appendChild(btn);
+                });
+            },
+
+            openColorModal() {
+                document.getElementById('color-modal').classList.add('show');
+            },
+
+            closeColorModal() {
+                document.getElementById('color-modal').classList.remove('show');
             },
 
             renderStampCats() {
