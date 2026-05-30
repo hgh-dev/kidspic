@@ -17,6 +17,9 @@
             --sidebar-width: 350px;
             --accent-color: #FF6B6B;
             --btn-border: #ddd;
+            --bar-height: 64px;
+            --touch-size: 76px;
+            --canvas-pad: clamp(10px, 2vw, 22px);
         }
 
         body {
@@ -36,16 +39,16 @@
 
         /* --- 2. 상단 바 (Top Bar) --- */
         #top-bar {
-            height: 50px;
+            height: var(--bar-height);
             background-color: var(--sidebar-bg);
             border-bottom: 1px solid #ccc;
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            padding: 0 5px;
+            padding: 0 6px;
             flex-shrink: 0;
             z-index: 20;
-            gap: 10px;
+            gap: 6px;
         }
 
         .top-group {
@@ -58,10 +61,10 @@
         /* 중앙 도구 영역 */
         #top-tools {
             flex: 1;
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(11, minmax(0, 1fr));
             align-items: center;
-            justify-content: flex-start;
-            gap: 5px;
+            gap: 4px;
             overflow-x: auto;
             white-space: nowrap;
             padding: 2px 0;
@@ -74,51 +77,38 @@
         }
 
         .icon-btn {
-            width: 50px;
-            height: 50px;
-            padding: 10px;
+            width: 100%;
+            height: 56px;
+            min-width: 0;
+            min-height: 56px;
+            padding: 6px 8px;
             flex-shrink: 0;
             box-sizing: border-box;
+            font-size: 22px;
+            flex-direction: column;
+            gap: 3px;
+            line-height: 1;
+            border-radius: 8px;
         }
 
         .icon-btn svg {
-            width: 100%;
-            height: 100%;
+            width: 24px;
+            height: 24px;
             fill: #555;
             display: block;
         }
 
-        /* 텍스트 입력 UI */
-        #text-ui {
-            display: none;
-            align-items: center;
-            gap: 4px;
-            background: #eee;
-            padding: 3px;
-            border-radius: 4px;
-            flex-shrink: 0;
-            height: 50px;
-            box-sizing: border-box;
+        .btn-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #555;
+            line-height: 1;
+            white-space: nowrap;
         }
 
-        #text-val {
-            width: 120px;
-            padding: 6px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 18px;
+        .selected .btn-label {
+            color: var(--accent-color);
         }
-
-        #text-btn {
-            padding: 0 15px;
-            height: 36px;
-            font-size: 16px;
-            background: #333;
-            color: white;
-            border: none;
-            border-radius: 4px;
-        }
-
 
         /* --- 3. 메인 영역 --- */
         #main-area {
@@ -129,6 +119,17 @@
             position: relative;
             min-height: 0;
             height: auto;
+        }
+
+        #canvas-stage {
+            flex: 1;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--canvas-pad);
+            box-sizing: border-box;
         }
 
         #main-area.left-handed {
@@ -148,8 +149,8 @@
             display: flex;
             flex-direction: column;
             padding: 10px;
-            gap: 8px;
-            overflow: hidden;
+            gap: 12px;
+            overflow-y: auto;
             flex-shrink: 0;
             z-index: 15;
             height: 100%;
@@ -160,11 +161,11 @@
             background: #fff;
             border: 1px solid #eee;
             border-radius: 8px;
-            padding: 8px;
+            padding: 10px;
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 6px;
         }
 
         .section-title {
@@ -179,13 +180,13 @@
         .grid-row-4 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
+            gap: 6px;
         }
 
         .grid-colors {
             display: grid;
-            grid-template-columns: repeat(9, 1fr);
-            gap: 3px;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
         }
 
         /* 버튼 기본 */
@@ -199,6 +200,7 @@
             justify-content: center;
             touch-action: manipulation;
             transition: all 0.1s ease;
+            min-height: 38px;
         }
 
         button:active {
@@ -228,7 +230,8 @@
         .color-btn {
             width: 100%;
             aspect-ratio: 1;
-            border-radius: 4px;
+            min-height: 34px;
+            border-radius: 7px;
             border: 1px solid rgba(0, 0, 0, 0.1);
             cursor: pointer;
             box-sizing: border-box;
@@ -246,7 +249,7 @@
 
         /* 펜 크기 */
         .size-btn {
-            height: 40px;
+            height: 54px;
         }
 
         .size-dot {
@@ -258,43 +261,122 @@
             background-color: var(--accent-color);
         }
 
-        /* 스탬프 섹션 */
+        /* 스탬프 */
+        .current-stamp-panel {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            border: 1px solid #e2e2e2;
+            border-radius: 7px;
+            background: #fafafa;
+            box-sizing: border-box;
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .current-stamp-panel:active {
+            transform: scale(0.98);
+            background: #fff0f0;
+        }
+
+        .current-stamp-panel .current-stamp {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        #sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.25);
+            display: none;
+            z-index: 1500;
+        }
+
+        #sheet-backdrop.show {
+            display: block;
+        }
+
+        #stamp-sheet {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1600;
+            height: min(56dvh, 520px);
+            background: #fff;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+            display: flex;
+            flex-direction: column;
+            transform: translateY(105%);
+            transition: transform 0.18s ease;
+            overflow: hidden;
+        }
+
+        #stamp-sheet.show {
+            transform: translateY(0);
+        }
+
+        .sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+            padding: 6px 12px;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .sheet-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .sheet-close {
+            width: 44px;
+            height: 44px;
+            font-size: 26px;
+            border: none;
+            background: transparent;
+        }
+
         #stamp-section {
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 0;
             gap: 0;
-            padding: 0;
-            background: transparent;
-            border: none;
             overflow: hidden;
         }
 
         #stamp-cat-box {
             background: #f0f2f5;
-            padding: 8px;
-            border-radius: 8px 8px 0 0;
-            border: 1px solid #ddd;
-            border-bottom: none;
+            padding: 6px 8px;
+            border-bottom: 1px solid #ddd;
             flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         .cat-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            gap: 5px;
         }
 
         .stamp-cat {
-            height: 40px;
+            height: 34px;
             padding: 0;
-            font-size: 14px;
+            font-size: 11px;
             white-space: nowrap;
             border: 1px solid #ccc;
             background: #fff;
-            border-radius: 6px;
-            letter-spacing: -0.5px;
+            border-radius: 999px;
+            letter-spacing: -0.4px;
         }
 
         .stamp-cat.selected {
@@ -307,37 +389,36 @@
         #stamp-list-box {
             flex: 1;
             background: #fff;
-            border: 1px solid #ddd;
             overflow-y: auto;
-            padding: 5px;
-            border-top: 1px solid #eee;
-            border-bottom: 1px solid #eee;
+            padding: 8px;
         }
 
         .grid-stamps {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(auto-fill, minmax(54px, 54px));
+            gap: 6px;
+            justify-content: start;
         }
 
         .stamp-btn {
-            font-size: 28px;
+            width: 54px;
             height: 54px;
+            font-size: 30px;
             border: 1px solid #eee;
             background: #fff;
             border-radius: 5px;
+            padding: 0;
         }
 
         /* 컨트롤 박스 UI */
         #stamp-controls-box {
-            background: #f9f9f9;
-            padding: 8px;
-            border-radius: 0 0 8px 8px;
-            border: 1px solid #ddd;
-            border-top: none;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            border: none;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
             flex-shrink: 0;
         }
 
@@ -345,7 +426,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            height: 40px;
+            height: 38px;
         }
 
         /* 스크롤바(Range) 커스텀 스타일링 */
@@ -369,8 +450,8 @@
         input[type=range]::-webkit-slider-thumb {
             appearance: none;
             -webkit-appearance: none;
-            height: 45px;
-            width: 45px;
+            height: 36px;
+            width: 36px;
             border-radius: 50%;
             background: var(--accent-color);
             cursor: pointer;
@@ -394,8 +475,8 @@
 
         .flip-btn {
             flex: 1;
-            height: 40px;
-            font-size: 16px;
+            min-height: 38px;
+            font-size: 12px;
             gap: 5px;
             border-width: 2px;
         }
@@ -406,15 +487,25 @@
             border-color: #333;
         }
 
+        .context-tool {
+            display: none;
+        }
+
+        .context-tool.show {
+            display: flex;
+        }
+
 
 
         /* --- 캔버스 --- */
         #canvas-wrapper {
-            flex: 1;
+            flex: 0 0 auto;
             position: relative;
             background-color: #fff;
-            /* [수정됨] 시계 방향: 위10, 우10, 아래50(안전지대), 좌10 */
-            margin: 50px 60px 50px 60px;
+            width: min(100%, calc((100dvh - (var(--bar-height) * 2) - (var(--canvas-pad) * 2)) * 4 / 3));
+            max-height: 100%;
+            aspect-ratio: 4 / 3;
+            margin: 0;
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             overflow: hidden;
@@ -471,7 +562,7 @@
 
         /* --- 5. 하단 바 (Bottom Bar) --- */
         #bottom-bar {
-            height: 50px;
+            height: var(--bar-height);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -485,6 +576,14 @@
         #bottom-bar .group {
             display: flex;
             gap: 5px;
+        }
+
+        #bottom-bar .icon-btn {
+            width: 58px;
+            height: 50px;
+            min-width: 58px;
+            min-height: 50px;
+            font-size: 20px;
         }
 
         /* --- 6. 색상 선택 모달 --- */
@@ -543,6 +642,52 @@
             gap: 8px;
         }
 
+        #text-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        #text-modal.show {
+            display: flex;
+        }
+
+        .text-modal-content {
+            width: min(420px, 100%);
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        #text-val {
+            height: 54px;
+            padding: 0 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 22px;
+            box-sizing: border-box;
+        }
+
+        #text-btn {
+            height: 52px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 8px;
+        }
+
         .more-btn {
             background-color: #eee !important;
             font-weight: bold;
@@ -558,7 +703,7 @@
             display: none;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             #btn-menu {
                 display: block;
             }
@@ -572,10 +717,353 @@
                 z-index: 100;
                 box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
                 height: 100%;
+                width: min(100vw, var(--sidebar-width));
+                overflow-y: auto;
             }
 
             #sidebar.show {
                 display: flex;
+            }
+
+            #main-area.left-handed #sidebar {
+                left: auto;
+                right: 0;
+            }
+        }
+
+        @media (max-width: 520px) {
+            :root {
+                --bar-height: 60px;
+                --touch-size: 68px;
+            }
+
+            #top-bar {
+                padding: 0 5px;
+                gap: 6px;
+            }
+
+            #top-tools {
+                grid-template-columns: repeat(11, minmax(60px, 1fr));
+                gap: 4px;
+            }
+
+            #canvas-wrapper {
+                width: min(100%, calc(100dvh - var(--bar-height) - 38dvh - (var(--canvas-pad) * 2)));
+                aspect-ratio: 1 / 1;
+            }
+
+            .grid-colors {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .grid-stamps {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 50px));
+            }
+
+            .stamp-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+            }
+
+            #stamp-sheet {
+                height: 62dvh;
+            }
+
+            #stamp-section {
+                flex-direction: column;
+            }
+
+            #stamp-cat-box {
+                border-bottom: 1px solid #ddd;
+            }
+
+            .cat-grid {
+                display: grid;
+                grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
+
+            .stamp-cat {
+                min-width: 0;
+            }
+        }
+
+        @media (max-height: 760px) {
+            #sidebar {
+                padding: 6px;
+                gap: 5px;
+            }
+
+            .tool-section {
+                padding: 5px;
+                gap: 4px;
+            }
+
+            .section-title {
+                font-size: 11px;
+                margin-bottom: 0;
+            }
+
+            .size-btn {
+                height: 38px;
+            }
+
+            #stamp-cat-box {
+                padding: 5px;
+            }
+
+            .cat-grid {
+                gap: 4px;
+            }
+
+            .stamp-cat {
+                height: 30px;
+                font-size: 11px;
+            }
+
+            #stamp-list-box {
+                padding: 4px;
+            }
+
+            .stamp-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 26px;
+            }
+
+            #stamp-controls-box {
+                padding: 6px;
+                gap: 6px;
+            }
+
+            .slider-row {
+                height: 34px;
+            }
+
+            input[type=range]::-webkit-slider-thumb {
+                height: 32px;
+                width: 32px;
+                margin-top: -11px;
+            }
+
+            .flip-btn {
+                min-height: 36px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-height: 520px) and (orientation: landscape) {
+            :root {
+                --bar-height: 58px;
+                --touch-size: 58px;
+            }
+
+            #top-bar,
+            #bottom-bar {
+                height: var(--bar-height);
+            }
+
+            #sidebar {
+                width: min(430px, 100vw);
+                padding: 5px;
+            }
+
+            #sidebar.show {
+                display: flex;
+                flex-direction: column;
+                align-content: stretch;
+            }
+
+            .icon-btn {
+                min-width: 0;
+                padding: 5px 7px;
+                font-size: 20px;
+            }
+
+            .icon-btn svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .btn-label {
+                font-size: 10px;
+            }
+
+            .tool-section {
+                padding: 4px;
+            }
+
+            .grid-row-4 {
+                gap: 4px;
+            }
+
+            .grid-colors {
+                grid-template-columns: repeat(9, 1fr);
+                gap: 4px;
+            }
+
+            .color-btn {
+                min-height: 26px;
+            }
+
+            .size-btn {
+                height: 34px;
+            }
+
+            #stamp-cat-box {
+                padding: 4px;
+            }
+
+            .cat-grid {
+                gap: 4px;
+            }
+
+            .stamp-cat {
+                height: 32px;
+                font-size: 11px;
+                letter-spacing: 0;
+            }
+
+            #stamp-list-box {
+                min-height: 104px;
+                padding: 4px;
+            }
+
+            .stamp-btn {
+                width: 46px;
+                height: 46px;
+                font-size: 27px;
+            }
+
+            #stamp-controls-box {
+                padding: 5px;
+                gap: 4px;
+            }
+
+            .slider-row {
+                height: 30px;
+            }
+
+            .flip-btn {
+                min-height: 34px;
+            }
+
+            #canvas-wrapper {
+                width: min(100%, calc((100dvh - (var(--bar-height) * 2) - (var(--canvas-pad) * 2)) * 4 / 3));
+                aspect-ratio: 4 / 3;
+            }
+
+            #stamp-sheet {
+                height: 68dvh;
+            }
+
+            #stamp-section {
+                flex-direction: column;
+            }
+
+            #stamp-cat-box {
+                width: auto;
+            }
+
+            .cat-grid {
+                display: grid;
+                grid-template-columns: repeat(10, minmax(0, 1fr));
+            }
+        }
+
+        @media (orientation: portrait) {
+            #btn-menu {
+                display: none;
+            }
+
+            #main-area {
+                flex-direction: column-reverse;
+            }
+
+            #main-area.left-handed {
+                flex-direction: column-reverse;
+            }
+
+            #sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 38dvh;
+                border-right: none;
+                border-left: none;
+                border-top: 1px solid #ccc;
+                display: grid;
+                position: static;
+                box-shadow: none;
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                align-items: stretch;
+                padding: 8px;
+                gap: 8px;
+                overflow-y: auto;
+            }
+
+            #main-area.left-handed #sidebar {
+                border-left: none;
+            }
+
+            .tool-section {
+                min-width: 0;
+                padding: 7px;
+                gap: 6px;
+            }
+
+            .tool-section:nth-child(2) {
+                grid-column: 1 / -1;
+                order: -1;
+            }
+
+            .grid-row-4 {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 5px;
+            }
+
+            .size-btn {
+                height: 46px;
+            }
+
+            .grid-colors {
+                grid-template-columns: repeat(7, minmax(0, 1fr));
+                gap: 5px;
+            }
+
+            .color-btn {
+                min-height: 38px;
+            }
+
+            .current-stamp-panel {
+                height: 44px;
+                padding: 0 9px;
+                font-size: 12px;
+            }
+
+            .current-stamp-panel .current-stamp {
+                font-size: 24px;
+            }
+
+            .slider-row {
+                height: 32px;
+            }
+
+            .flip-group {
+                gap: 4px;
+            }
+
+            .flip-btn {
+                min-height: 34px;
+                font-size: 12px;
+            }
+
+            #canvas-stage {
+                flex: 1;
+            }
+
+            #canvas-wrapper {
+                width: min(100%, calc(100dvh - var(--bar-height) - 38dvh - (var(--canvas-pad) * 2)));
+                aspect-ratio: 1 / 1;
             }
         }
     </style>
@@ -594,43 +1082,39 @@
             <button class="icon-btn selected" data-mode="pencil" title="연필"><svg viewBox="0 0 24 24">
                     <path
                         d="M3,17.25V21H6.75L17.81,9.94L14.06,6.19L3,17.25M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.13,5.12L18.88,8.87L20.71,7.04Z" />
-                </svg></button>
+                </svg><span class="btn-label">연필</span></button>
             <button class="icon-btn" data-mode="brush" title="진짜 수채화 붓"><svg viewBox="0 0 24 24">
                     <path
                         d="M20.71,4.63L19.37,3.29C19,2.9 18.35,2.9 17.96,3.29L9,12.25L11.75,15L20.71,6.04C21.1,5.65 21.1,5 20.71,4.63M7,14A3,3 0 0,0 4,17C4,18.31 2.84,19 2,19C2.92,20.22 4.5,21 6,21A4,4 0 0,0 10,17A3,3 0 0,0 7,14Z" />
-                </svg></button>
-            <button class="icon-btn" data-mode="brush-spray" title="스프레이">💨</button>
+                </svg><span class="btn-label">붓</span></button>
+            <button class="icon-btn" data-mode="brush-spray" title="스프레이"><span>💨</span><span class="btn-label">뿌리기</span></button>
 
             <button class="icon-btn" data-mode="line" title="선"><svg viewBox="0 0 24 24">
                     <path d="M3,21L21,3" stroke="currentColor" stroke-width="2" fill="none" />
-                </svg></button>
+                </svg><span class="btn-label">선</span></button>
             <button class="icon-btn" data-mode="rect" title="네모"><svg viewBox="0 0 24 24">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
-                </svg></button>
+                </svg><span class="btn-label">네모</span></button>
             <button class="icon-btn" data-mode="circle" title="원"><svg viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" />
-                </svg></button>
+                </svg><span class="btn-label">동그라미</span></button>
             <button class="icon-btn" data-mode="triangle" title="세모"><svg viewBox="0 0 24 24">
                     <path d="M12,2L2,22H22L12,2Z" />
-                </svg></button>
+                </svg><span class="btn-label">세모</span></button>
             <button class="icon-btn" data-mode="eraser" title="지우개"><svg viewBox="0 0 24 24">
                     <path
                         d="M16.24,3.56L21.19,8.5C21.97,9.29 21.97,10.55 21.19,11.34L12,20.53C10.44,22.09 7.91,22.09 6.34,20.53L2.81,17C2.03,16.21 2.03,14.95 2.81,14.16L13.41,3.56C14.2,2.78 15.46,2.78 16.24,3.56M4.22,15.58L7.76,19.11C8.54,19.9 9.8,19.9 10.59,19.11L14.12,15.58L9.17,10.63L4.22,15.58Z" />
-                </svg></button>
-            <button class="icon-btn" data-mode="paint" title="채우기">🪣</button>
+                </svg><span class="btn-label">지우개</span></button>
+            <button class="icon-btn" data-mode="paint" title="채우기"><span>🪣</span><span class="btn-label">채우기</span></button>
+            <button class="icon-btn" id="btn-stamp-top" title="스티커"><span>🌟</span><span class="btn-label">스티커</span></button>
 
             <button class="icon-btn" data-mode="text" title="글자"><svg viewBox="0 0 24 24">
                     <path
                         d="M18.5,4L19.66,8.35L18.7,8.61C18.25,7.74 17.79,6.87 17.26,6.43C16.73,6 16.11,6 15.5,6H13V16.5C13,17 13,17.5 13.33,17.75C13.67,18 14.33,18 15,18V19H9V18C9.67,18 10.33,18 10.67,17.75C11,17.5 11,17 11,16.5V6H8.5C7.89,6 7.27,6 6.74,6.43C6.21,6.87 5.75,7.74 5.3,8.61L4.34,8.35L5.5,4H18.5Z" />
-                </svg></button>
+                </svg><span class="btn-label">글자</span></button>
 
-            <div id="text-ui">
-                <input type="text" id="text-val" value="안녕">
-                <button id="text-btn">OK</button>
-            </div>
         </div>
 
-    </div>
     </div>
 
     <div id="main-area">
@@ -660,17 +1144,12 @@
                 <div class="grid-colors" id="color-palette"></div>
             </div>
 
-            <div id="stamp-section">
-
-                <div id="stamp-cat-box">
-                    <span class="section-title">스탬프 주제</span>
-                    <div class="cat-grid" id="cat-scroll-area"></div>
-                </div>
-
-                <div id="stamp-list-box">
-                    <div class="grid-stamps" id="stamp-list"></div>
-                </div>
-
+            <div class="tool-section context-tool sticker-tools" id="sticker-tools">
+                <span class="section-title">스티커</span>
+                <button class="current-stamp-panel" id="btn-stamp-current" type="button">
+                    <span>선택한 스티커</span>
+                    <span class="current-stamp" id="current-stamp">🧍‍♂️</span>
+                </button>
                 <div id="stamp-controls-box">
                     <div class="slider-row">
                         <span style="font-size:12px; font-weight:bold;">크기</span>
@@ -678,19 +1157,29 @@
                         <span class="val-display" id="stamp-size-val">50</span>
                     </div>
                     <div class="flip-group">
-                        <button class="flip-btn" id="btn-flip-x" onclick="App.toggleFlip('x')">↔️ 좌우 반전</button>
-                        <button class="flip-btn" id="btn-flip-y" onclick="App.toggleFlip('y')">↕️ 상하 반전</button>
+                        <button class="flip-btn" id="btn-flip-x" onclick="App.toggleFlip('x')">↔️ 좌우</button>
+                        <button class="flip-btn" id="btn-flip-y" onclick="App.toggleFlip('y')">↕️ 상하</button>
                     </div>
                 </div>
+            </div>
 
+            <div class="tool-section context-tool" id="text-tools">
+                <span class="section-title">글자 크기</span>
+                <div class="slider-row">
+                    <span style="font-size:12px; font-weight:bold;">크기</span>
+                    <input type="range" id="text-slider" min="12" max="140" value="40">
+                    <span class="val-display" id="text-size-val">40</span>
+                </div>
             </div>
 
         </div>
 
-        <div id="canvas-wrapper">
-            <canvas id="drawingCanvas"></canvas>
-            <canvas id="previewCanvas"></canvas>
-            <div id="bomb-overlay">💣</div>
+        <div id="canvas-stage">
+            <div id="canvas-wrapper">
+                <canvas id="drawingCanvas"></canvas>
+                <canvas id="previewCanvas"></canvas>
+                <div id="bomb-overlay">💣</div>
+            </div>
         </div>
 
     </div>
@@ -724,6 +1213,33 @@
                 <button class="modal-close" onclick="App.closeColorModal()">&times;</button>
             </div>
             <div class="modal-grid" id="modal-color-list"></div>
+        </div>
+    </div>
+
+    <div id="text-modal">
+        <div class="text-modal-content">
+            <div class="modal-header">
+                <span class="modal-title">글자 쓰기</span>
+                <button class="modal-close" onclick="App.closeTextModal()">&times;</button>
+            </div>
+            <input type="text" id="text-val" value="안녕" autocomplete="off">
+            <button id="text-btn">캔버스에 찍기</button>
+        </div>
+    </div>
+
+    <div id="sheet-backdrop" onclick="App.closeStampSheet()"></div>
+    <div id="stamp-sheet" aria-hidden="true">
+        <div class="sheet-header">
+            <span class="sheet-title">스티커 고르기</span>
+            <button class="sheet-close" onclick="App.closeStampSheet()" title="닫기">&times;</button>
+        </div>
+        <div id="stamp-section">
+            <div id="stamp-cat-box">
+                <div class="cat-grid" id="cat-scroll-area"></div>
+            </div>
+            <div id="stamp-list-box">
+                <div class="grid-stamps" id="stamp-list"></div>
+            </div>
         </div>
     </div>
 
@@ -834,12 +1350,14 @@
                 mode: 'pencil',
                 color: '#000000',
                 size: 5,
+                textSize: 40,
                 stampSize: 50,
                 stamp: STAMPS['사람 🧍'][0],
                 isDrawing: false,
                 startPos: null, lastPos: null,
                 hue: 0,
                 history: [],
+                undoToken: 0,
                 flipX: false,
                 flipY: false
             },
@@ -864,6 +1382,7 @@
                 this.renderStampCats();
                 this.setStampCat('사람 🧍');
                 this.bindEvents();
+                this.updateContextTools();
                 this.resizeCanvas();
 
                 // 우클릭 방지
@@ -872,6 +1391,10 @@
                 // 모달 배경 클릭 닫기
                 document.getElementById('color-modal').addEventListener('click', (e) => {
                     if (e.target.id === 'color-modal') this.closeColorModal();
+                });
+
+                document.getElementById('text-modal').addEventListener('click', (e) => {
+                    if (e.target.id === 'text-modal') this.closeTextModal();
                 });
             },
 
@@ -953,6 +1476,35 @@
                 document.getElementById('color-modal').classList.remove('show');
             },
 
+            openTextModal() {
+                const modal = document.getElementById('text-modal');
+                const input = document.getElementById('text-val');
+                modal.classList.add('show');
+                setTimeout(() => {
+                    input.focus();
+                    input.select();
+                }, 0);
+            },
+
+            closeTextModal() {
+                document.getElementById('text-modal').classList.remove('show');
+            },
+
+            openStampSheet() {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('sheet-backdrop').classList.add('show');
+                const sheet = document.getElementById('stamp-sheet');
+                sheet.classList.add('show');
+                sheet.setAttribute('aria-hidden', 'false');
+            },
+
+            closeStampSheet() {
+                document.getElementById('sheet-backdrop').classList.remove('show');
+                const sheet = document.getElementById('stamp-sheet');
+                sheet.classList.remove('show');
+                sheet.setAttribute('aria-hidden', 'true');
+            },
+
             renderStampCats() {
                 const scrollArea = document.getElementById('cat-scroll-area');
                 scrollArea.innerHTML = '';
@@ -981,8 +1533,10 @@
                         btn.onclick = () => {
                             this.state.stamp = s;
                             this.setMode('stamp');
+                            document.getElementById('current-stamp').textContent = s;
                             document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('selected'));
                             btn.classList.add('selected');
+                            this.closeStampSheet();
                         };
                         list.appendChild(btn);
                     });
@@ -997,7 +1551,14 @@
                     if (btn) btn.classList.add('selected');
                     document.querySelectorAll('.stamp-btn').forEach(b => b.classList.remove('selected'));
                 }
-                document.getElementById('text-ui').style.display = (m === 'text') ? 'flex' : 'none';
+                document.getElementById('btn-stamp-top').classList.toggle('selected', m === 'stamp');
+                this.updateContextTools();
+                if (m === 'text') this.openTextModal();
+            },
+
+            updateContextTools() {
+                document.getElementById('sticker-tools').classList.toggle('show', this.state.mode === 'stamp');
+                document.getElementById('text-tools').classList.toggle('show', this.state.mode === 'text');
             },
 
             toggleFlip(axis) {
@@ -1058,7 +1619,8 @@
                 }
                 else if (this.state.mode === 'text') {
                     const txt = document.getElementById('text-val').value;
-                    this.drawTextWithTransform(this.dom.ctx, txt, pos.x, pos.y, this.state.size * 2, false);
+                    this.drawTextWithTransform(this.dom.ctx, txt, pos.x, pos.y, this.state.textSize, false);
+                    this.closeTextModal();
                     this.state.isDrawing = false;
                 }
                 else {
@@ -1083,7 +1645,7 @@
                 if (this.state.mode === 'text') {
                     this.dom.pCtx.clearRect(0, 0, this.dom.pCanvas.width, this.dom.pCanvas.height);
                     const txt = document.getElementById('text-val').value;
-                    this.drawTextWithTransform(this.dom.pCtx, txt, pos.x, pos.y, this.state.size * 2, true);
+                    this.drawTextWithTransform(this.dom.pCtx, txt, pos.x, pos.y, this.state.textSize, true);
                     return;
                 }
 
@@ -1243,11 +1805,21 @@
                 ctx.putImageData(imgData, 0, 0);
             },
 
-            saveState() { this.state.history.push(this.dom.canvas.toDataURL()); if (this.state.history.length > 10) this.state.history.shift(); },
+            saveState() {
+                this.state.history.push(this.dom.canvas.toDataURL());
+                if (this.state.history.length > 20) this.state.history.shift();
+            },
             undo() {
-                if (this.state.history.length === 0) { this.dom.ctx.clearRect(0, 0, this.dom.canvas.width, this.dom.canvas.height); return; }
-                const img = new Image(); img.src = this.state.history.pop();
-                img.onload = () => { this.dom.ctx.clearRect(0, 0, this.dom.canvas.width, this.dom.canvas.height); this.dom.ctx.drawImage(img, 0, 0); }
+                if (this.state.history.length === 0) return;
+
+                const token = ++this.state.undoToken;
+                const img = new Image();
+                img.onload = () => {
+                    if (token !== this.state.undoToken) return;
+                    this.dom.ctx.clearRect(0, 0, this.dom.canvas.width, this.dom.canvas.height);
+                    this.dom.ctx.drawImage(img, 0, 0);
+                };
+                img.src = this.state.history.pop();
             },
             clearAll() {
                 Sound.play('bomb');
@@ -1300,7 +1872,15 @@
                 document.getElementById('btn-undo').onclick = () => this.undo();
                 document.getElementById('btn-clear').onclick = () => this.clearAll();
                 document.getElementById('btn-hand').onclick = () => document.getElementById('main-area').classList.toggle('left-handed');
-                document.getElementById('text-btn').onclick = () => alert('캔버스에 콕 찍어주세요!');
+                document.getElementById('text-btn').onclick = () => this.closeTextModal();
+                document.getElementById('text-val').onkeydown = (e) => {
+                    if (e.key === 'Enter') this.closeTextModal();
+                };
+                document.getElementById('btn-stamp-top').onclick = () => {
+                    this.setMode('stamp');
+                    this.openStampSheet();
+                };
+                document.getElementById('btn-stamp-current').onclick = () => this.openStampSheet();
 
                 document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => this.setMode(b.dataset.mode));
                 document.querySelectorAll('.size-btn').forEach(b => b.onclick = () => {
@@ -1313,6 +1893,12 @@
 
                 const slider = document.getElementById('stamp-slider');
                 slider.oninput = (e) => { this.state.stampSize = parseInt(e.target.value); document.getElementById('stamp-size-val').innerText = e.target.value; };
+
+                const textSlider = document.getElementById('text-slider');
+                textSlider.oninput = (e) => {
+                    this.state.textSize = parseInt(e.target.value);
+                    document.getElementById('text-size-val').innerText = e.target.value;
+                };
 
                 window.addEventListener('resize', () => this.resizeCanvas());
             },
